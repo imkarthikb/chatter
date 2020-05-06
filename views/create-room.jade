@@ -1,0 +1,29 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(http-equiv='X-UA-Compatible', content='ie=edge')
+    link(rel='stylesheet', href='css/style.css')
+    title Chatter
+  body
+    .join-container
+      header.join-header
+        h1 Chatter
+      main.join-main
+        form(action='/create-room', method='POST')
+          .form-control
+            label Room ID
+            h1 !{roomId}
+          .form-control
+            label(for='username') Username
+            input#username(type='text', name='username', placeholder="'John' or 'Mike' or 'Mary'", required,value=(userName || ''))
+          .form-control
+            label(for='room-password') Password
+            input#roomPassword(type='text', name='roomPassword', placeholder="'abcd' or '1234' or 'a'", value=(password || ''))
+            p(style='margin-top: 0.5em;font-size: 12px;')
+              | *Leave it blank for open room
+            p(style='margin-top: 1em;font-size: 12px;')
+              | #{userNameAlreadyTaken ? 'Username already taken' : ''}
+          input#roomId(type='hidden', name='roomId', value=roomId)
+          button.btn(type='submit') Create Room

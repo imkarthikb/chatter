@@ -1,0 +1,30 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(http-equiv='X-UA-Compatible', content='ie=edge')
+    link(rel='stylesheet', href='css/style.css')
+    title Chatter
+  body
+    .join-container
+      header.join-header
+        h1 Chatter
+      main.join-main
+        form(action='/join-room', method='POST')
+          .form-control
+            h1 Join a room
+          .form-control
+            label(for='username') Username
+            input#roomId(type='text', name='username', placeholder="'John' or 'Mary'", required,value=(userName || ''))
+          .form-control
+            label(for='roomId') Room ID
+            input#roomId(type='text', name='roomId', placeholder='1234', required,value=(roomId || ''))
+          .form-control
+            label(for='roomPassword') Password
+            input#roomPassword(type='text', name='roomPassword', placeholder='Password',value=(password || ''))
+          p(style='margin-top: 1em;font-size: 12px;')
+            | #{userNameAlreadyTaken ? 'Username already taken' : ''}
+            | #{inCorrectPassword ? 'Incorrect room password' : ''}
+            | #{roomDoesntExist ? 'Room doesnt exist' : ''}
+          button.btn(type='submit') Join Room

@@ -15,7 +15,7 @@
             <h1>Chatter</h1>
         </header>
         <main class="join-main">
-            <form action="/a" method="POST">
+            <form action="/create-room" method="POST">
                 <div class="form-control">
                     <label for="username">Room ID</label>
                     <h1>1222</h1>
@@ -26,7 +26,7 @@
                     <p style="margin-top: 0.5em;font-size: 12px;">
                         *Leave it blank for open room</p>
                 </div>
-
+                <input type="hidden" name="roomId" id="roomId" value="1233" />
                 <button type="submit" class="btn">Create Room</button>
             </form>
         </main>
