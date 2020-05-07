@@ -22,7 +22,7 @@ app.use(session({ secret: 'chatter', resave: false, saveUninitialized: false }))
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Templating engine setup
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 app.set('views', 'views');
 
 // Redirections

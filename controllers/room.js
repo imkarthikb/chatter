@@ -155,7 +155,8 @@ exports.getRoom = (req, res, next) => {
         res.render('room', {
             roomId: roomId,
             username: username,
-            roomPassword: (admin === username) ? password : ''
+            roomPassword: password,
+            isAdmin: (admin === username)
         });
     }
 };

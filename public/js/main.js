@@ -6,6 +6,7 @@ const messageField = document.getElementById('msg');
 const msgForm = document.getElementById('chat-form');
 const usersList = document.getElementById('users');
 const typing = document.getElementById('typing');
+const chatMessages = document.querySelector('.chat-messages');
 
 // Join room
 socket.emit('joinRoom', { username, roomId });
@@ -84,7 +85,7 @@ socket.on('typing', (typingUsers) => {
 // Add users to DOM
 function outputUsers(users) {
     usersList.innerHTML = `
-      ${users.map(user => `<li>${user.name}</li>`).join('')}
+      ${users.map(user => `<li>${user.name} ${(username === user.name) ? '(You)' : ''}</li>`).join('')}
     `;
 }
 
@@ -97,6 +98,8 @@ function outputMessage(message) {
       ${message.body}
     </p>`;
     document.querySelector('.chat-messages').appendChild(div);
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 // Output is typing message to DOM

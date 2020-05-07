@@ -21,13 +21,14 @@ html(lang='en')
             i.fas.fa-comments
             |  Room ID:
           h2#room-name #{roomId}
-          h3
-            if roomPassword.length == 0
-              i Open Room
-            else
-              | Room Password :
-          if roomPassword.length != 0
-            h2#room-name #{roomPassword}
+          if isAdmin
+            h3
+              if roomPassword.length == 0
+                i Open Room
+              else
+                | Room Password :
+          if isAdmin && roomPassword.length != 0
+            h2 #{roomPassword}
           h3
             i.fas.fa-users
             |  Users
