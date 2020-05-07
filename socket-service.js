@@ -3,7 +3,7 @@ const message = require('./models/message');
 
 const botName = 'Admin';
 let io;
-let typingUsers = [];
+let typingStats = [];
 
 const init = (socketIo) => {
     io = socketIo;
@@ -36,65 +36,87 @@ const init = (socketIo) => {
 
         });
 
-        socket.on('send', ({ username, room, message }) => {
+        socket.on('send', ({ username, roomId, msg }) => {
+            console.log(username, roomId, msg);
+
             // Broadcast the message to other users
             socket.broadcast
-                .to(room)
+                .to(roomId)
                 .emit(
                     'message',
-                    message.createMessage(botName, room, `${username} has joined the chat`)
+                    message.createMessage(username, roomId, msg)
                 );
         });
 
-        socket.on('typing', ({ username, room }) => {
+        socket.on('typing', ({ username, roomId }) => {
             // Adding the user to typing users list
-            typingUsers.push({
-                username: username,
-                room: room
-            });
-
-            // Fetching the length of typing users of the room 
-            const noOfUsersTypingInTheRoom = typingUsers.filter(typingUser => typingUser.room === room).length;
-
-            // Forming appropriate message based on number of typing users of room
-            let message = '';
-            if (noOfUsersTypingInTheRoom == 1) {
-                message = `${username} is typing...`
+            const typingItem = typingStats.find(typingItem => typingItem.room === roomId);
+            if (typingItem) {
+                // Typing room already exists
+                // Assuming users exist in that room else would have been removed
+                if (typingItem.users) {
+                    const typingUser = typingItem.users.find(userName => userName === username);
+                    if (typingUser) {
+                        // The typing user already exists in the typing users list
+                    } else {
+                        typingItem.users.push(username);
+                    }
+                } else {
+                    typingItem.users = [username];
+                }
             } else {
-                message = `${noOfUsersTypingInTheRoom} people are typing...`
+                // Typing room doesnt exist
+                typingStats.push({
+                    users: [username],
+                    room: roomId
+                })
             }
+
+            // Fetching the room
+            const room = typingStats.find(typingItem => typingItem.room === roomId);
 
             // Broadcast the message to other users
             socket.broadcast
-                .to(room)
+                .to(roomId)
                 .emit(
                     'typing',
-                    message
+                    room.users
                 );
         });
 
-        socket.on('stoppedTyping', ({ username, room }) => {
-            // Filtering all the users except the user who stopped typing
-            // Replacing the typing users with that filtered list
-            typingUsers = typingUsers.filter(typingUser => typingUser.username !== username);
+        socket.on('stoppedTyping', ({ username, roomId }) => {
+            // Removing the user to typing users list
+            const typingItem = typingStats.find(typingItem => typingItem.room === roomId);
+            const typingItemIndex = typingStats.findIndex(typingItem => typingItem.room === roomId);
+            if (typingItem) {
+                // Typing room already exists
+                // Assuming users exist in that room else would have been removed
+                if (typingItem.users) {
+                    const typingUserIndex = typingItem.users.findIndex(userName => userName === username);
+                    if (typingUserIndex != -1) {
+                        // The typing user exists in the typing users list
+                        typingItem.users.splice(typingUserIndex, 1);
 
-            // Fetching the length of typing users of the room 
-            const noOfUsersTypingInTheRoom = typingUsers.filter(typingUser => typingUser.room === room).length;
-
-            // Forming appropriate message based on number of typing users of room
-            let message = '';
-            if (noOfUsersTypingInTheRoom == 1) {
-                message = `${username} is typing...`
+                        // Checking if the typing users is empty
+                        if (typingItem.users.length == 0) {
+                            // Removing from the typing stats
+                            typingStats.splice(typingItemIndex, 1);
+                        }
+                    }
+                }
             } else {
-                message = `${noOfUsersTypingInTheRoom} people are typing...`
+                // Typing room doesnt exist
             }
+
+            // Fetching the room 
+            const room = typingStats.find(typingUser => typingUser.room === roomId);
 
             // Broadcast the message to other users
             socket.broadcast
-                .to(room)
+                .to(roomId)
                 .emit(
                     'typing',
-                    message
+                    (room) ? room.users : [],
                 );
         });
 

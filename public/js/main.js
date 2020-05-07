@@ -1,7 +1,9 @@
 const socket = io();
 
 const roomId = document.getElementById('roomId').value;
-var username = document.getElementById('username').value;
+const username = document.getElementById('username').value;
+const messageField = document.getElementById('msg');
+const msgForm = document.getElementById('chat-form');
 
 // Join room
 socket.emit('joinRoom', { username, roomId });
@@ -24,19 +26,52 @@ socket.on('adminExit', () => {
 });
 
 // Send message
-// TODO - Listen for send button clicks
-// socket.emit('send', { username, roomId, message });
+msgForm.addEventListener('submit', e => {
+    e.preventDefault();
+
+    // Get message text
+    const msg = messageField.value;
+
+    // Emit message to server
+    socket.emit('send', { username, roomId, msg });
+
+    // Clear input
+    messageField.value = '';
+    messageField.focus();
+
+});
 
 // Send typing event
-// TODO - Listen for oninput event
-// socket.emit('typing', { username, roomId });
+messageField.addEventListener('input', e => {
+    const msgLength = messageField.value.length;
+    if (msgLength == 1) {
+        socket.emit('typing', { username, roomId });
+    } else if (msgLength == 0) {
+        socket.emit('stoppedTyping', { username, roomId });
+    }
 
-// Stopped typing event
-// TODO - Listen for oninput event
-// socket.emit('stoppedTyping', { username, roomId });
+});
 
 // Listen for typing events
-socket.on('typing', (message) => {
-    console.log(message);
+socket.on('typing', (typingUsers) => {
     // TODO - Show the message
+
+    if (typingUsers.length == 0) {
+        console.log('none are typing...');
+    } else {
+        // Checking if the same user exists in the list
+        const userIndex = typingUsers.findIndex(typingUser => typingUser === username);
+        if (userIndex != -1) {
+            // The current user also exists in the list
+            typingUsers.splice(userIndex, 1);
+        }
+        
+        if (typingUsers.length == 0) {
+            console.log('none are typing...');
+        } else if (typingUsers.length == 1) {
+            console.log(typingUsers[0], ' is typing...');
+        } else {
+            console.log(typingUsers.length, ' people are typing...');
+        }
+    }
 });
