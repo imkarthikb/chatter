@@ -4,20 +4,20 @@ const roomId = document.getElementById('roomId').value;
 const username = document.getElementById('username').value;
 const messageField = document.getElementById('msg');
 const msgForm = document.getElementById('chat-form');
+const usersList = document.getElementById('users');
+const typing = document.getElementById('typing');
 
 // Join room
 socket.emit('joinRoom', { username, roomId });
 
 // Listening for room users
 socket.on('roomUsers', ({ users }) => {
-    console.log(users);
-    // TODO : Show list of users
+    outputUsers(users);
 });
 
 // Listening for messages
 socket.on('message', (message) => {
-    console.log(message);
-    // TODO : Show message
+    outputMessage(message);
 });
 
 // Listening for admin exits
@@ -34,6 +34,11 @@ msgForm.addEventListener('submit', e => {
 
     // Emit message to server
     socket.emit('send', { username, roomId, msg });
+    socket.emit('stoppedTyping', { username, roomId });
+    outputMessage({
+        user: username, room: roomId, body: msg,
+        timestamp: new Date(Date.now()).toUTCString()
+    });
 
     // Clear input
     messageField.value = '';
@@ -57,7 +62,7 @@ socket.on('typing', (typingUsers) => {
     // TODO - Show the message
 
     if (typingUsers.length == 0) {
-        console.log('none are typing...');
+        outputIsTypingMessage(``);
     } else {
         // Checking if the same user exists in the list
         const userIndex = typingUsers.findIndex(typingUser => typingUser === username);
@@ -65,13 +70,36 @@ socket.on('typing', (typingUsers) => {
             // The current user also exists in the list
             typingUsers.splice(userIndex, 1);
         }
-        
+
         if (typingUsers.length == 0) {
-            console.log('none are typing...');
+            outputIsTypingMessage(``);
         } else if (typingUsers.length == 1) {
-            console.log(typingUsers[0], ' is typing...');
+            outputIsTypingMessage(`${typingUsers[0]} is typing...`);
         } else {
-            console.log(typingUsers.length, ' people are typing...');
+            outputIsTypingMessage(`${typingUsers.length} people are typing...`);
         }
     }
 });
+
+// Add users to DOM
+function outputUsers(users) {
+    usersList.innerHTML = `
+      ${users.map(user => `<li>${user.name}</li>`).join('')}
+    `;
+}
+
+// Output message to DOM
+function outputMessage(message) {
+    const div = document.createElement('div');
+    div.classList.add('message');
+    div.innerHTML = `<p class="meta">${message.user} <span>${message.timestamp}</span></p>
+    <p class="text">
+      ${message.body}
+    </p>`;
+    document.querySelector('.chat-messages').appendChild(div);
+}
+
+// Output is typing message to DOM
+function outputIsTypingMessage(message) {
+    typing.innerText = message;
+}

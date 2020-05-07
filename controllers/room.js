@@ -21,8 +21,6 @@ exports.postJoinRoom = (req, res, next) => {
 
     // Fetching the appropiate room
     const fetchedRoom = room.getRoom(roomId);
-    console.log(fetchedRoom);
-    console.log(roomPassword);
 
     if (fetchedRoom) {
         if ((fetchedRoom.password || '') === roomPassword) {
@@ -65,7 +63,6 @@ exports.postJoinRoom = (req, res, next) => {
         }
     } else {
         // Room doesnt exist
-        console.log('Room doesnt exist');
         res.render('join-room', {
             roomId: roomId,
             userNameAlreadyTaken: false,
@@ -132,7 +129,6 @@ exports.postLeaveRoom = (req, res, next) => {
 
     // Fetching the room to check the user was the admin
     const fetchedRoom = room.getRoom(roomId);
-    console.log(fetchedRoom);
 
     // If the user is the admin redirect the user to home
     if (fetchedRoom.admin === username) {

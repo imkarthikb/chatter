@@ -32,19 +32,11 @@ html(lang='en')
             i.fas.fa-users
             |  Users
           ul#users
-        .chat-messages
-          .message
-            p.meta
-              | A 
-              span 9:12pm
-            p.text
-              | Hey.
-          .message
-            p.meta
-              | B 
-              span 9:15pm
-            p.text
-              | Hello.
+        ul
+          li
+            .chat-messages
+          li
+            i#typing.typing
       .chat-form-container
         form#chat-form
           input#msg(type='text', placeholder='Enter Message', required='', autocomplete='off')

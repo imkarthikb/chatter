@@ -70,6 +70,10 @@ a {
 	overflow-y: scroll;
 }
 
+.typing {
+	margin-left: 30px;
+}
+
 .chat-sidebar h2 {
 	font-size: 20px;
 	background: rgba(0, 0, 0, 0.1);

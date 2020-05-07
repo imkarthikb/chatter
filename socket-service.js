@@ -37,8 +37,6 @@ const init = (socketIo) => {
         });
 
         socket.on('send', ({ username, roomId, msg }) => {
-            console.log(username, roomId, msg);
-
             // Broadcast the message to other users
             socket.broadcast
                 .to(roomId)
@@ -132,8 +130,9 @@ const init = (socketIo) => {
         });
     });
 };
+
 const adminExit = (admin, roomId) => {
-    socket.broadcast.to(roomId).emit('adminExit');
+    io.to(roomId).emit('adminExit');
 };
 
 module.exports = { init, adminExit };
