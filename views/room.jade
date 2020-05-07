@@ -10,22 +10,28 @@ html(lang='en')
     .chat-container
       header.chat-header
         h1 Chatter
-        a.btn(href='index.html') Leave Room
+        form(action="/leave-room", method="post")
+          input#roomId(type='hidden', name='roomId', value=roomId)
+          input#username(type='hidden', name='username', value=username)
+          button.btn(type='submit')
+            |  Leave Room
       main.chat-main
         .chat-sidebar
           h3
             i.fas.fa-comments
             |  Room ID:
-          h2#room-name 1234
+          h2#room-name #{roomId}
+          h3
+            if roomPassword.length == 0
+              i Open Room
+            else
+              | Room Password :
+          if roomPassword.length != 0
+            h2#room-name #{roomPassword}
           h3
             i.fas.fa-users
             |  Users
           ul#users
-            li A
-            li B
-            li C
-            li D
-            li E
         .chat-messages
           .message
             p.meta
@@ -45,4 +51,5 @@ html(lang='en')
           button.btn
             i.fas.fa-paper-plane
             |  Send
-    script(src='js/main.js')
+    script(src='/socket.io/socket.io.js')
+    script(src='/js/main.js')

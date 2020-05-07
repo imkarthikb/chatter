@@ -21,9 +21,14 @@ const deleteUser = (name) => {
     }
 };
 
+const fetchRoomUsers = (roomId) => {
+    return users.filter(user => user.room === roomId);
+};
+
 
 module.exports = {
     getUser,
     createUser,
-    deleteUser
+    deleteUser,
+    fetchRoomUsers
 }

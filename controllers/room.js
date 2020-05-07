@@ -1,5 +1,6 @@
 const room = require('../models/room');
 const user = require('../models/user');
+const socketService = require('../socket-service');
 
 exports.getJoinRoom = (req, res, next) => {
     res.render('join-room', {
@@ -36,8 +37,10 @@ exports.postJoinRoom = (req, res, next) => {
                 // Creating new user
                 user.createUser(username, roomId);
 
-                // Redirecting user
-                res.redirect('enter-room');
+                // Redirecting user to room
+                req.session.roomId = roomId;
+                req.session.username = username;
+                res.redirect('/room');
             } else {
                 // User already exists
                 res.render('join-room', {
@@ -104,8 +107,10 @@ exports.postCreateRoom = (req, res, next) => {
         // Creating the room
         room.createRoom(roomId, roomPassword, username);
 
-        // Redirecting user
-        res.redirect('enter-room');
+        // Redirecting user to room
+        req.session.roomId = roomId;
+        req.session.username = username;
+        res.redirect('/room');
     } else {
         // User already exists
         res.render('create-room', {
@@ -113,6 +118,48 @@ exports.postCreateRoom = (req, res, next) => {
             userNameAlreadyTaken: true,
             userName: username,
             password: roomPassword
+        });
+    }
+};
+
+exports.postLeaveRoom = (req, res, next) => {
+    // Fetching the roomId and username
+    const roomId = req.body.roomId;
+    const username = req.body.username;
+
+    // Delete user
+    user.deleteUser(username);
+
+    // Fetching the room to check the user was the admin
+    const fetchedRoom = room.getRoom(roomId);
+    console.log(fetchedRoom);
+
+    // If the user is the admin redirect the user to home
+    if (fetchedRoom.admin === username) {
+        room.deleteRoom(roomId);
+
+        socketService.adminExit(username, roomId);
+    }
+
+    // Redirect user to home
+    res.redirect('/');
+};
+
+exports.getRoom = (req, res, next) => {
+    // Fetching the roomId and username from session
+    const roomId = req.session.roomId;
+    const username = req.session.username;
+
+    if (!roomId || !username) {
+        // If neither roomId or the username is not existing in session
+        // then is redirected to home screen
+        res.redirect('/');
+    } else {
+        const { admin, password } = room.getRoom(roomId);
+        res.render('room', {
+            roomId: roomId,
+            username: username,
+            roomPassword: (admin === username) ? password : ''
         });
     }
 };
